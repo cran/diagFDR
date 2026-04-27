@@ -1,4 +1,4 @@
-55cfafd8949dfefb61926d6fd3c580f8 *DESCRIPTION
+f8df16bb1b0ae7deb7e2960986b6807d *DESCRIPTION
 0ae58d8bae77cbefcb14be0ed15ff465 *NAMESPACE
 a69ca066fa9cf6240c84e8b9c44411b6 *R/BH_diagnostics.R
 36540e8cff04e772621d06be102ea6b0 *R/BH_elasticity.R
@@ -17,7 +17,8 @@ b940168eb83483e7be72c820504d1888 *R/diag_stability.R
 c9f1d311afbaaa0471268deb631db6c0 *R/read_maxquant_msms.R
 b3ffceb46869c04a0f5b5d653700dd06 *R/read_mzid.R
 156d53dced2d9de6a636bfd1797fbb9c *R/read_spectronaut_normalEG.R
-21e1c0cb06126c0ce25659de91b705d2 *R/render_report.R
+b812a618802409c368478a22ffa9b154 *R/render_report.R
+61ba61cf5a7e411650e764c52f220fdf *R/report_write.R
 0a560ed4096540db3e3780fb56b3721a *R/run_all.R
 39f5a26722cfc16b06fc998640543ed6 *R/score_to_pvalue.R
 657b66054c1a05047ffec2e10c1f93b5 *R/utils.R
@@ -83,7 +84,7 @@ c9f332b9251105a2b7df18e168055af1 *man/dfdr_summary_headline.Rd
 6ff194da2a8b3b179d869ef39342934a *man/dfdr_sumpep.Rd
 7efa9fc81182c8f192be8b3deede3471 *man/dfdr_write_manifest.Rd
 fa5e71ed62ec640a22c6d9fb7f9187ec *man/dfdr_write_readme.Rd
-52c87b7e34720d4b873c57446da5956f *man/dfdr_write_report.Rd
+184ad78dfd9b2528b471bc3944e0e175 *man/dfdr_write_report.Rd
 986b5cc2a4c9775c395a9335fef97d66 *man/diann_detect_run_col.Rd
 7307c35f76a6e582bea7c26c8237a2b1 *man/diann_global_minrunq.Rd
 6215c79b311d456203bbf5616e982049 *man/diann_global_precursor.Rd

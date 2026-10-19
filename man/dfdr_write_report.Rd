@@ -52,12 +52,12 @@ Writes tables as CSV and plots as PNG, optionally creates a PPTX (requires offic
 Exports the output of \code{\link{dfdr_run_all}} to disk. Depending on selected
 \code{formats}, this function can:
 \itemize{
-\item write diagnostic tables as CSV;
-\item write plots as PNG;
-\item create a PowerPoint (\code{.pptx}) containing the plots (requires \pkg{officer} and \pkg{rvg} in Suggests);
-\item write a lightweight manifest (\code{\link{dfdr_write_manifest}});
-\item write a human-readable \code{README.md} (\code{\link{dfdr_write_readme}});
-\item write a compact headline summary table (\code{summary_headline.csv}).
+  \item write diagnostic tables as CSV;
+  \item write plots as PNG;
+  \item create a PowerPoint (\code{.pptx}) containing the plots (requires \pkg{officer} and \pkg{rvg} in Suggests);
+  \item write a lightweight manifest (\code{\link{dfdr_write_manifest}});
+  \item write a human-readable \code{README.md} (\code{\link{dfdr_write_readme}});
+  \item write a compact headline summary table (\code{summary_headline.csv}).
 }
 }
 \examples{

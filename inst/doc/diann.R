@@ -65,7 +65,8 @@ diag$plots$equal_chance__global
 #   q_max_export = 0.5,
 #   unit = "precursor",
 #   scope = "global",
-#   q_source = "Global.Q.Value"
+#   q_source = "Global.Q.Value",
+#   two_pass = TRUE   # search run with --reanalyse (MBR); FALSE for a single pass
 # )
 # 
 # # (B) Run×precursor universe using run-wise Q.Value
@@ -77,7 +78,8 @@ diag$plots$equal_chance__global
 #   id_mode = "runxid",
 #   unit = "runxprecursor",
 #   scope = "runwise",
-#   q_source = "Q.Value"
+#   q_source = "Q.Value",
+#   two_pass = TRUE   # search run with --reanalyse (MBR); FALSE for a single pass
 # )
 # 
 # # (C) Scope misuse comparator: min run-wise q over runs per precursor (anti-pattern)
@@ -88,13 +90,15 @@ diag$plots$equal_chance__global
 #   q_max_export = 0.5,
 #   unit = "precursor",
 #   scope = "aggregated",
-#   q_source = "min_run(Q.Value)"
+#   q_source = "min_run(Q.Value)",
+#   two_pass = TRUE   # search run with --reanalyse (MBR); FALSE for a single pass
 # )
 # 
 # diag <- dfdr_run_all(
 #   xs = list(global = x_global_gq, runx = x_runx, minrun = x_minrun),
 #   alpha_main = 0.01,
-#   compute_pseudo_pvalues = TRUE  # <-- This adds p-value diagnostics
+#   compute_pseudo_pvalues = TRUE,   # p-value diagnostics (need a score) ...
+#   pseudo_pvalue_score = "pep"      # ... DIA-NN 2.x reports have no CScore: use -PEP (approximate)
 # )
 # 
 # # Compare accepted lists across scopes (Jaccard overlap across alpha)

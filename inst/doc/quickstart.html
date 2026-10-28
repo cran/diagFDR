@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>diagFDR quick start: scope, calibration, stability and entrapment on a simulated list</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">diagFDR quick start: scope, calibration,
+stability and entrapment on a simulated list</h1>
+
+
+
+<p>This vignette runs end to end without external data. It uses the
+ground-truth simulator of the diagFDR paper (Supplementary Note S6) so
+that every diagnostic can be compared with the <em>realised</em> false
+discovery proportion, which is known exactly in simulation and unknown
+on real data.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(diagFDR)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>sim <span class="ot">&lt;-</span> sim_tdc_example          <span class="co"># 20,000 units, Gaussian nulls, correct specification</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>sim</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; &lt;dfdr_tbl&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;   unit:    simulated_unit</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   scope:   global</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;   q_from:  tdc_counting</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt;   n:       20000</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 20,000 × 6</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;    id       is_decoy      q           pep run   score</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;    &lt;lgl&gt;     &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;  1 u0000001 TRUE     0.352  NA            &lt;NA&gt;  0.391</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt;  2 u0000002 FALSE    0       0.0000000448 &lt;NA&gt;  6.11 </span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt;  3 u0000003 FALSE    0       0.000197     &lt;NA&gt;  4.31 </span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt;  4 u0000004 TRUE     0.238  NA            &lt;NA&gt;  0.935</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt;  5 u0000005 FALSE    0.190   0.998        &lt;NA&gt;  1.14 </span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt;  6 u0000006 TRUE     0.211  NA            &lt;NA&gt;  1.06 </span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt;  7 u0000007 TRUE     0.116  NA            &lt;NA&gt;  1.50 </span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt;  8 u0000008 TRUE     0.0324 NA            &lt;NA&gt;  2.13 </span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt;  9 u0000009 FALSE    0.359   1.000        &lt;NA&gt;  0.344</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; 10 u0000010 FALSE    0.330   1.000        &lt;NA&gt;  0.500</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 19,990 more rows</span></span></code></pre></div>
+<div id="headline-support-and-the-fdp-cv-benchmark" class="section level2">
+<h2>1. Headline support and the FDP-CV benchmark</h2>
+<p>An FDR claim at a threshold <span class="math inline">\(\alpha\)</span> should come with the accepted
+target and decoy counts, <span class="math inline">\(T_\alpha\)</span>
+and <span class="math inline">\(D_\alpha\)</span>, the recomputed decoy
+ratio <span class="math inline">\(D_\alpha/T_\alpha\)</span>, the
+decoy-support index <span class="math inline">\(D_\alpha^{-1/2}\)</span>
+and the FDP-CV benchmark <span class="math inline">\(\sqrt2\,D_\alpha^{-1/2}\)</span> (Proposition
+1).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">dfdr_headline</span>(sim, <span class="at">alpha =</span> <span class="fl">0.01</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>h[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;T_alpha&quot;</span>, <span class="st">&quot;D_alpha&quot;</span>, <span class="st">&quot;FDR_hat&quot;</span>, <span class="st">&quot;support_index&quot;</span>, <span class="st">&quot;CV_benchmark&quot;</span>)]</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 6</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   alpha T_alpha D_alpha FDR_hat support_index CV_benchmark</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt;         &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1  0.01    6565      65 0.00990         0.124        0.175</span></span></code></pre></div>
+<p>In simulation the realised FDP is known:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">dfdr_realised_fdp</span>(sim, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.002</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;   alpha T_alpha D_alpha V_alpha decoy_ratio         FDP</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; 1 0.050    7005     350     395 0.049964311 0.056388294</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; 2 0.010    6565      65      74 0.009900990 0.011271896</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 3 0.002    6308      12      14 0.001902346 0.002219404</span></span></code></pre></div>
+<p>The benchmark says how much the realised FDP is expected to vary
+<em>across experiments</em> with this decoy support.
+<code>dfdr_check_cv_benchmark()</code> checks it by Monte Carlo (the
+paper uses 1000 replicates of <span class="math inline">\(2\times10^5\)</span> units; here a small run
+suffices):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">dfdr_check_cv_benchmark</span>(<span class="at">B =</span> <span class="dv">30</span>, <span class="at">n =</span> <span class="dv">20000</span>, <span class="at">alpha =</span> <span class="fl">0.01</span>)[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;CV_FDP&quot;</span>, <span class="st">&quot;mean_D&quot;</span>, <span class="st">&quot;kappa&quot;</span>)]</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;   alpha    CV_FDP mean_D    kappa</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; 1  0.01 0.1890189   65.4 1.528541</span></span></code></pre></div>
+<p><code>kappa</code> is the ratio of the observed CV to <span class="math inline">\(D_\alpha^{-1/2}\)</span>; Proposition 1 predicts
+<span class="math inline">\(\sqrt2\approx1.41\)</span> under
+independence.</p>
+</div>
+<div id="stability-across-thresholds" class="section level2">
+<h2>2. Stability across thresholds</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>alphas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0005</span>, <span class="fl">0.001</span>, <span class="fl">0.002</span>, <span class="fl">0.005</span>, <span class="fl">0.01</span>, <span class="fl">0.02</span>, <span class="fl">0.05</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">dfdr_curve_stability</span>(sim, <span class="at">alphas =</span> alphas)[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;T_alpha&quot;</span>, <span class="st">&quot;D_alpha&quot;</span>, <span class="st">&quot;support_index&quot;</span>)]</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7 × 4</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;    alpha T_alpha D_alpha support_index</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;    &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt;         &lt;dbl&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 1 0.0005    6065       3        0.577 </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 2 0.001     6186       6        0.408 </span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 3 0.002     6308      12        0.289 </span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 4 0.005     6461      32        0.177 </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 5 0.01      6565      65        0.124 </span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 6 0.02      6705     134        0.0864</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 7 0.05      7005     350        0.0535</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">dfdr_local_tail</span>(sim, <span class="at">alphas =</span> alphas, <span class="at">win_rel =</span> <span class="fl">0.2</span>)[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;D_alpha_win&quot;</span>)]</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7 × 2</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;    alpha D_alpha_win</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;    &lt;dbl&gt;       &lt;int&gt;</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 1 0.0005           0</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 2 0.001            1</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 3 0.002            3</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; 4 0.005            6</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 5 0.01            14</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 6 0.02            28</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 7 0.05            75</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="fu">dfdr_elasticity</span>(sim, <span class="at">alphas =</span> alphas, <span class="at">eps =</span> <span class="fl">0.2</span>)[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;jaccard&quot;</span>)]</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7 × 2</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;    alpha jaccard</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;    &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 1 0.0005   1    </span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 2 0.001    0.995</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 3 0.002    0.997</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 4 0.005    0.998</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; 5 0.01     0.997</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; 6 0.02     0.992</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; 7 0.05     0.989</span></span></code></pre></div>
+</div>
+<div id="calibration-pep-concordance-and-equal-chance" class="section level2">
+<h2>3. Calibration: PEP concordance and equal chance</h2>
+<p>The simulated list carries the true PEP of every target, so the IPE
+should be close to zero under the target–decoy comparator <span class="math inline">\(D_b/T_b\)</span>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">dfdr_ipe</span>(sim)<span class="sc">$</span>IPE</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.002067698</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">dfdr_equal_chance_qbands</span>(sim)<span class="sc">$</span>pooled</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 11</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   qmax_export low_lo low_hi N_test N_D_test pi_D_hat effect_abs ci95_lo ci95_hi</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;         &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;int&gt;    &lt;int&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 1           1    0.2    0.5   9973     4968    0.498    0.00186   0.488   0.508</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: p_value_binom &lt;dbl&gt;, pass_minN &lt;lgl&gt;</span></span></code></pre></div>
+</div>
+<div id="what-a-misspecified-decoy-model-looks-like" class="section level2">
+<h2>4. What a misspecified decoy model looks like</h2>
+<p>Decoys that are under-dispersed (scenario S2 of the paper) inflate
+the realised FDP while the reported decoy ratio stays at <span class="math inline">\(\alpha\)</span>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>bad <span class="ot">&lt;-</span> <span class="fu">dfdr_simulate_tdc</span>(<span class="at">n =</span> <span class="dv">20000</span>, <span class="at">decoy_scale =</span> <span class="fl">0.85</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">dfdr_realised_fdp</span>(bad, <span class="at">alpha =</span> <span class="fl">0.01</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt;   alpha T_alpha D_alpha V_alpha decoy_ratio        FDP</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; 1  0.01    6877      68     194 0.009888033 0.02820998</span></span></code></pre></div>
+<p>This is why external validation (entrapment) is a distinct
+requirement.</p>
+</div>
+<div id="label-propagation-at-protein-group-level" class="section level2">
+<h2>5. Label propagation at protein-group level</h2>
+<p>When several exported rows collapse into one reported unit and the
+rows do not all carry the same target/decoy label, the rule that assigns
+the unit’s label must be stated. The four rules are compared by
+<code>dfdr_label_rule_audit()</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>rep <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Protein.Group =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">&quot;P&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">2000</span>), <span class="at">each =</span> <span class="dv">3</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                  <span class="at">Decoy =</span> <span class="fu">rbinom</span>(<span class="dv">6000</span>, <span class="dv">1</span>, <span class="fl">0.12</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                  <span class="at">Global.PG.Q.Value =</span> <span class="fu">c</span>(<span class="fu">runif</span>(<span class="dv">6000</span>, <span class="dv">0</span>, <span class="fl">0.3</span>)))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">label_is_intrinsic</span>(rep, <span class="st">&quot;Protein.Group&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; $intrinsic</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; $n_mixed</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; [1] 678</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; $n_keys</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; [1] 2000</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fu">dfdr_label_rule_audit</span>(rep, <span class="st">&quot;Protein.Group&quot;</span>, <span class="st">&quot;Global.PG.Q.Value&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;          rule n_units T_alpha D_alpha decoy_ratio support_index CV_benchmark</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 1       split    2678     740     125  0.16891892    0.08944272    0.1264911</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 2 winning_row    2000     728     111  0.15247253    0.09491580    0.1342312</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 3   any_decoy    2000     544     295  0.54227941    0.05822225    0.0823387</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 4    majority    2000     807      32  0.03965304    0.17677670    0.2500000</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt;   n_mixed</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 1     678</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 2     678</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; 3     678</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; 4     678</span></span></code></pre></div>
+<p>Picked-protein competition is the procedural alternative that needs
+no rule:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>pg <span class="ot">&lt;-</span> <span class="fu">diann_global_proteingroup</span>(rep, <span class="at">rule =</span> <span class="st">&quot;split&quot;</span>, <span class="at">two_pass =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>pk <span class="ot">&lt;-</span> <span class="fu">dfdr_picked_protein</span>(pg, <span class="at">alpha =</span> <span class="fl">0.05</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">c</span>(<span class="at">T =</span> pk<span class="sc">$</span>T_alpha, <span class="at">D =</span> pk<span class="sc">$</span>D_alpha, <span class="at">ratio =</span> pk<span class="sc">$</span>decoy_ratio, <span class="at">pairs =</span> pk<span class="sc">$</span>n_pairs)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;     T     D ratio pairs </span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;    19     0     0   678</span></span></code></pre></div>
+</div>
+<div id="external-validation-by-entrapment" class="section level2">
+<h2>6. External validation by entrapment</h2>
+<p>Entrapment matches are accepted identifications known to be false
+because they map only to a proteome absent from the sample. On a real
+DIA-NN entrapment search the ids come from
+<code>diann_entrapment_ids(rep, accessions)</code> with the accessions
+read by <code>read_fasta_accessions()</code>; here we label some
+incorrect targets as entrapment to show the output.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">attr</span>(sim, <span class="st">&quot;truth&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>ent_ids <span class="ot">&lt;-</span> sim<span class="sc">$</span>id[<span class="sc">!</span>sim<span class="sc">$</span>is_decoy <span class="sc">&amp;</span> truth<span class="sc">$</span>is_null <span class="sc">&amp;</span> <span class="fu">runif</span>(<span class="fu">nrow</span>(sim)) <span class="sc">&lt;</span> <span class="fl">0.3</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">dfdr_entrapment</span>(sim, ent_ids, <span class="at">alpha =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>), <span class="at">r =</span> <span class="fl">0.43</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;   alpha T_alpha D_alpha decoy_ratio E_alpha     fdp_raw          lo          hi</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; 1  0.05    7005     350  0.04996431     122 0.017416131 0.014606662 0.020754597</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 2  0.01    6565      65  0.00990099      26 0.003960396 0.002704189 0.005796771</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;      r fdp_corrected fdp_corrected_target_only</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 1 0.43    0.05791876               0.041220533</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; 2 0.43    0.01317062               0.009246845</span></span></code></pre></div>
+<p><code>fdp_raw</code> is <span class="math inline">\(E_\alpha/T_\alpha\)</span> with a Wilson interval;
+<code>fdp_corrected</code> is the size-corrected estimate of Wen et
+al. (2025), which needs the entrapment-to-target size ratio
+<code>r</code> (<code>dfdr_entrapment_size_ratio()</code> computes it
+from the FASTA files at protein and peptide level).</p>
+<p>Two scope choices that overlap almost entirely can still differ
+sharply where they disagree. <code>dfdr_entrapment_discordant()</code>
+computes the entrapment rate on the shared core and on the discordant
+set:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">dfdr_accepted</span>(sim, <span class="fl">0.01</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>a2 <span class="ot">&lt;-</span> <span class="fu">dfdr_accepted</span>(sim, <span class="fl">0.03</span>)      <span class="co"># a looser list standing in for a mis-scoped one</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>d  <span class="ot">&lt;-</span> <span class="fu">dfdr_entrapment_discordant</span>(a1, a2, ent_ids)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>d</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt;          set    n  E         fdp          lo          hi</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; 1       core 6565 26 0.003960396 0.002704189 0.005796771</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; 2      added  235 40 0.170212766 0.127560688 0.223473255</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; 3    removed    0  0          NA          NA          NA</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; 4 discordant  235 40 0.170212766 0.127560688 0.223473255</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; 5      list1 6565 26 0.003960396 0.002704189 0.005796771</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; 6      list2 6800 66 0.009705882 0.007636771 0.012328635</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="fu">attr</span>(d, <span class="st">&quot;ratio&quot;</span>); <span class="fu">attr</span>(d, <span class="st">&quot;jaccard&quot;</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; [1] 42.97872</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; [1] 0.9654412</span></span></code></pre></div>
+</div>
+<div id="report" class="section level2">
+<h2>7. Report</h2>
+<p><code>dfdr_run_all()</code> runs the standard suite on a named list
+of <code>dfdr_tbl</code> objects and <code>dfdr_render_report()</code>
+writes the HTML report with alerts tagged by their evidential basis; see
+the DIA-NN, Spectronaut, MaxQuant, mokapot and mzIdentML vignettes for
+the adapters.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
